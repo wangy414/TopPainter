@@ -60,7 +60,7 @@ TopPainterWidget::TopPainterWidget(QWidget *parent) :
     m_pen.setWidth(3);
     move(0,0);
 
-    int toolYStart = applicationRect.height()-100;
+    int toolYStart = applicationRect.height()-200;
     int btnCnt = 5;
     int btnSize = 72;
     int toolXStart = (applicationRect.width() - btnCnt*btnSize)/2;
@@ -104,6 +104,13 @@ TopPainterWidget::TopPainterWidget(QWidget *parent) :
     clearBtn->SetPixmap(pixClear,pixClear,pixClear);
     clearBtn->setGeometry(toolXStart+btnSize*4,toolYStart,pixClear->width(),pixClear->height());
     connect( clearBtn, SIGNAL(clicked()), this, SLOT(onSlotClearBtn()) );
+
+    clearAllBtn=new CImageButton(this);
+    pixAllClear = new QPixmap();
+    pixAllClear->load("./img/clearall.png");
+    clearAllBtn->SetPixmap(pixAllClear,pixAllClear,pixAllClear);
+    clearAllBtn->setGeometry(toolXStart+btnSize*5,toolYStart,pixAllClear->width(),pixAllClear->height());
+    connect( clearAllBtn, SIGNAL(clicked()), this, SLOT(onSlotClearAllBtn()) );
 
 }
 
@@ -288,4 +295,9 @@ void  TopPainterWidget::onSlotClearBtn()
     //m_pen.setWidth(10);
     
     m_isClear = true;
+}
+
+void  TopPainterWidget::onSlotClearAllBtn()
+{
+    m_scene->clear();
 }

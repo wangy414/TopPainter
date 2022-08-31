@@ -9,7 +9,7 @@
 #include <QPen>
 #include "ImageButton.h"
 #include <QPixmap>
-
+#include <QToolBar>
 
 class TopPainterWidget : public QWidget
 {
@@ -24,6 +24,7 @@ public slots:
     void  onSlotSaveMouseEvent();
     void  onSlotPenBtn();
     void  onSlotClearBtn();
+    void  onSlotClearAllBtn();
     
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -46,6 +47,9 @@ public:
     CImageButton *clearBtn;
     QPixmap      *pixClear;
     
+    CImageButton *clearAllBtn;
+    QPixmap      *pixAllClear;
+
     QPixmap       *pixExit;
     CImageButton *exitBtn;
 
@@ -56,6 +60,5 @@ public:
     bool m_isPressed;
     bool m_isAllowDrawing;
     bool m_isClear;
-    
 };
 #endif // _TOP_PAINTER_WIDGET_H_
