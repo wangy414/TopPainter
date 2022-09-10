@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include <QMessageBox>
 #include <QList>
+#include "ICmd.h"
 
 #ifdef Q_OS_LINUX
  XShapeCombineRectangles(QX11Info::display(), winId(), ShapeInput, 0,
@@ -65,6 +66,11 @@ TopPainterWidget::TopPainterWidget(QWidget *parent) :
     int btnSize = 72;
     int toolXStart = (applicationRect.width() - btnCnt*btnSize)/2;
 
+    mToolBarPtr = new ToolBarWidget(this);
+    mToolBarPtr->setLocalGeometry(toolXStart,toolYStart-100,(applicationRect.width() - btnCnt*btnSize)/2,80);
+
+    connect(mToolBarPtr, SIGNAL(sendICmd(int)), this, SLOT(onSlotGetCmd(int)));
+#ifdef FEA_WITH_BTN
     pixLock = new QPixmap();
     pixLock->load("./img/lock.png");
     pixUnlock = new QPixmap();
@@ -111,7 +117,7 @@ TopPainterWidget::TopPainterWidget(QWidget *parent) :
     clearAllBtn->SetPixmap(pixAllClear,pixAllClear,pixAllClear);
     clearAllBtn->setGeometry(toolXStart+btnSize*5,toolYStart,pixAllClear->width(),pixAllClear->height());
     connect( clearAllBtn, SIGNAL(clicked()), this, SLOT(onSlotClearAllBtn()) );
-
+#endif
 }
 
 TopPainterWidget::~TopPainterWidget()
@@ -139,7 +145,7 @@ void TopPainterWidget::mousePressEvent(QMouseEvent *event)
         }*/
         return;
      }
-
+    qDebug("mousePressEvent %d  %d \n",m_isPressed,m_isAllowDrawing);
     m_isPressed = true;
 
     m_pStart = event->pos();
@@ -149,6 +155,7 @@ void TopPainterWidget::mousePressEvent(QMouseEvent *event)
 void TopPainterWidget::mouseMoveEvent(QMouseEvent *event)
 
 {
+    qDebug("mouseMoveEvent %d  %d %d\n",m_isPressed,m_isAllowDrawing,m_isClear);
     if(m_isAllowDrawing == 0)
         return;
     QPainter painter(m_graphicsView);
@@ -226,15 +233,19 @@ void TopPainterWidget::onSlotLockMouseEvent()
         SetWindowLong((HWND)winId(), GWL_EXSTYLE, GetWindowLong((HWND)winId(), GWL_EXSTYLE) |WS_EX_TRANSPARENT | WS_EX_LAYERED);
         //SetWindowLong((HWND)exitBtn->winId(), GWL_EXSTYLE, GetWindowLong((HWND)exitBtn->winId(), GWL_EXSTYLE)&(~WS_EX_TRANSPARENT));
     #endif
-        XGlobalHook::instance()->installMouseHook();
+        /*XGlobalHook::instance()->installMouseHook();
         //XGlobalHook::instance()->eventRevObj = this;
         XGlobalHook::instance()->eventRevLst.append(exitBtn);
         XGlobalHook::instance()->eventRevLst.append(lockBtn);
+        */
         m_isAllowDrawing =  0;
+        #ifdef FEA_WITH_BTN
         lockBtn->SetPixmap(pixUnlock,pixUnlock,pixUnlock);
+        #endif
    }else if(m_isAllowDrawing == 0){
-        XGlobalHook::instance()->uninstallMouseHook();
+        /*XGlobalHook::instance()->uninstallMouseHook();
         XGlobalHook::instance()->eventRevLst.clear();
+        */
         //m_graphicsView->setAttribute(Qt::WA_TransparentForMouseEvents,true);
         LONG lWindowLong = ::GetWindowLong((HWND)winId(), GWL_EXSTYLE);
         lWindowLong = lWindowLong &(~WS_EX_TRANSPARENT) &(~WS_EX_LAYERED );
@@ -242,7 +253,9 @@ void TopPainterWidget::onSlotLockMouseEvent()
         //SetWindowLong((HWND)winId(), GWL_EXSTYLE, GetWindowLong((HWND)winId(), GWL_EXSTYLE) |WS_EX_TRANSPARENT | WS_EX_LAYERED);
         SetWindowLong((HWND)winId(), GWL_EXSTYLE, lWindowLong);
         m_isAllowDrawing = 1;
+        #ifdef FEA_WITH_BTN
         lockBtn->SetPixmap(pixLock,pixLock,pixLock);
+        #endif
         //setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
         //setFocus(Qt::MouseFocusReason);
         update();
@@ -300,4 +313,40 @@ void  TopPainterWidget::onSlotClearBtn()
 void  TopPainterWidget::onSlotClearAllBtn()
 {
     m_scene->clear();
+}
+
+void  TopPainterWidget::onSlotGetCmd(int iCmd)
+{
+    qDebug() << "------------------onSlotGetCmd "<<iCmd;
+
+    switch(iCmd){
+        case CMD_LOCK:{
+            onSlotLockMouseEvent();
+            break;
+        }
+        case CMD_UNLOCK:{
+            onSlotLockMouseEvent();
+            break;
+        }
+        case CMD_EXIT:{
+            break;
+        }
+        case CMD_SAVE:{
+            onSlotSaveMouseEvent();
+            break;
+        }
+        case CMD_PEN:{
+            onSlotPenBtn();
+            break;
+        }
+        case CMD_CLEAR:{
+            onSlotClearBtn();
+            break;
+        }
+        case CMD_CLEAR_ALL:{
+            onSlotClearAllBtn();
+            break;
+        }
+
+    }
 }

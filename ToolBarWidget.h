@@ -1,5 +1,5 @@
-#ifndef _TOP_PAINTER_WIDGET_H_
-#define _TOP_PAINTER_WIDGET_H_
+#ifndef _TOOLBAR_WIDGET_H_
+#define _TOOLBAR_WIDGET_H_
  
 #include <QWidget>
 #include <QMouseEvent>
@@ -10,18 +10,16 @@
 #include "ImageButton.h"
 #include <QPixmap>
 #include <QToolBar>
-#include "ToolBarWidget.h"
 
-//#define FEA_WITH_BTN
-
-class TopPainterWidget : public QWidget
+class ToolBarWidget : public QWidget
 {
 
     Q_OBJECT
 public:
-    explicit TopPainterWidget(QWidget *parent = 0);
-    ~TopPainterWidget();
+    explicit ToolBarWidget(QWidget *parent = 0);
+    ~ToolBarWidget();
 
+   void setLocalGeometry(int x, int y, int w, int h);
 public slots:
     void  onSlotLockMouseEvent();
     void  onSlotSaveMouseEvent();
@@ -29,16 +27,17 @@ public slots:
     void  onSlotClearBtn();
     void  onSlotClearAllBtn();
 
-    void  onSlotGetCmd(int iCmd);
+signals:
+    void sendICmd(int iCmd);
+
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *event);
 
-
 public:
-#ifdef FEA_WITH_BTN
+    QWidget *parentPtr;
     CImageButton *lockBtn;
     QPixmap      *pixLock;
     QPixmap      *pixUnlock;
@@ -57,15 +56,10 @@ public:
 
     QPixmap       *pixExit;
     CImageButton *exitBtn;
-#endif
-    QGraphicsView *m_graphicsView;
-    QGraphicsScene *m_scene;
-    QPoint m_pStart;
-    QPen m_pen;
-    bool m_isPressed;
-    bool m_isAllowDrawing;
-    bool m_isClear;
 
-    ToolBarWidget *mToolBarPtr;
+
+    QPoint mousePoint;
+    bool mouse_press;
+    bool m_isAllowDrawing;
 };
 #endif // _TOP_PAINTER_WIDGET_H_
